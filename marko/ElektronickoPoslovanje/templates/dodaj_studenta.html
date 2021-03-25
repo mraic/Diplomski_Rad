@@ -1,0 +1,12 @@
+<form action="/dodaj_studenta/" method="post" name="myForm">
+    {% csrf_token %}
+    <label for="ime_studenta">Ime studenta:</label>
+    <input type="text" id="fname" name="fname"><br><br>
+    <label for="prezime_studenta">Prezime studenta:</label>
+    <input type="text" id="prezime_studenta" name="prezime_studenta"><br><br>
+    <label for="broj_indeksa">Broj indeksa:</label>
+    <input type="text" id="broj_indeksa" name="broj_indeksa"><br><br>
+    <label for="email">Broj indeksa:</label>
+    <input type="text" id="email" name="email"><br><br>
+    <input type="button" onclick="formSubmit()" value="Dodaj studenta!">
+  </form>
