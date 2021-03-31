@@ -1,10 +1,7 @@
 var options = {
           series: [{
-          name: 'Dolasci',
-          data: [31, 40, 28, 51, 42, 109, 100]
-        }, {
-          name: 'Aktivni studenti',
-          data: [11, 32, 45, 32, 34, 52, 41]
+          name: 'Prisutnost',
+          data: prisutnostNaKolegijima
         }],
           chart: {
           height: 350,
@@ -17,8 +14,8 @@ var options = {
           curve: 'smooth'
         },
         xaxis: {
-          type: 'datetime',
-          categories: ["2020-09-19T00:00:00.000Z", "2020-09-19T01:30:00.000Z", "2020-09-19T02:30:00.000Z", "2020-09-19T03:30:00.000Z", "2020-09-19T04:30:00.000Z", "2020-09-19T05:30:00.000Z", "2020-09-19T06:30:00.000Z"]
+          type: 'string',
+          categories: kolegiji
         },
         tooltip: {
           x: {

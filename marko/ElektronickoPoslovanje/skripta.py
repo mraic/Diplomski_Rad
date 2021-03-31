@@ -2,7 +2,7 @@ from bs4 import BeautifulSoup as soup
 from urllib.request import urlopen as uReq
 import csv
 
-my_url = 'http://intranet.fsre.sum.ba:81/intranetfsr/teamworks.dll/calendar/calendar5/calendar?ShowSysMessages=true&urlencUTF8=true'
+my_url = 'http://intranet.fsre.sum.ba:81/intranetfsr/teamworks.dll/calendar/calendar1/calendar?ShowSysMessages=true&urlencUTF8=true'
 
 
 uClient = uReq(my_url)

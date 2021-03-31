@@ -25,6 +25,7 @@
           <a class="active_link" href="{% url 'user' %}">Admin</a>
           <a class="active_link1" href="{% url 'password_change' %}">Promijeni lozinku</a>
           <a class="active_link1" href="{% url 'password_reset' %}">Ponovno postavi lozinku</a>
+          <a class='active_link1' href="{% url 'ispricajstudenta' %}">Ispričaj studenta</a>
         
 
         </div>
@@ -161,13 +162,10 @@
           </div>
 
           <h2>OPĆENITO</h2>
-          <div class="sidebar__link">
-            <i class="fa fa-user-secret" aria-hidden="true"></i>
-            <a href="#">Administratorsko upravljanje</a>
-          </div>
+          
           <div class="sidebar__link">
             <i class="fa fa-user-secret"></i> <!-- fa fa-wrench-->
-            <a href="">Studenti</a>
+            <a href="{% url 'user' %}">Studenti</a>
           </div>
           
           <h2>KOLEGIJI</h2>
@@ -186,10 +184,21 @@
         </div>
       </div>
     </div>
-    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
-    <script src="/static/script.js"></script>
   </body>
+
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+
+        <script>
+
+    var kolegiji = {{chartKolegiji|safe}};
+    var prisutnostNaKolegijima = {{chartPrisutnost|safe}};
+    </script>
+    <script src="/static/script.js"></script>
+
+
+
 </html>
 
 {% endif %}
+
 

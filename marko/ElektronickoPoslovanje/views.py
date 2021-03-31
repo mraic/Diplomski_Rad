@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect
 from django.http import JsonResponse, response
 
+from django.core import serializers
 import csv
 from django.db.models import Count
 from django.shortcuts import render, redirect
@@ -16,6 +17,9 @@ from rest_framework.response import Response
 from .forms import RegistrationForm, AccountAuthenticationForm
 from .models import *
 from .serializers import *
+
+from bs4 import BeautifulSoup as soup
+from urllib.request import urlopen as uReq
 
 
 def register_view(request, *args, **kwargs):
@@ -97,12 +101,23 @@ def user(request):
 	koleg = kolegiji.objects.all().filter(
 		osobeFK=user_id).order_by('naziv_kolegija')
 
-	#broj_st = evidencija.objects.raw('SELECT COUNT(*) FROM public."ElektronickoPoslovanje_evidencija" as e LEFT JOIN public."ElektronickoPoslovanje_termini"  as t ON e.predavanja_fk_id = t.id WHERE t.naziv_kolegija_id = 3')
-	broj_st = evidencija.objects.all().count()
+	chartKolegiji = []
+	chartPrisutnost = []
 
-	#predmeti1 = kolegiji.objects.all()
+	for k in koleg:
+		chartKolegiji.append(k.naziv_kolegija)
+		termin_1 = termini.objects.all().filter(naziv_kolegija_id = k.id)
+		evidencija_1 = evidencija.objects.all().filter(predavanja_fk_id__in = termin_1).count()
+		chartPrisutnost .append(evidencija_1)
 
-	context = {'koleg': koleg, 'broj_st': broj_st}
+
+	kolegiji_1 = kolegiji.objects.all().filter(
+		osobeFK=user_id)
+	termin_1 = termini.objects.all().filter(naziv_kolegija_id__in =kolegiji_1)
+	evidencija_1 = evidencija.objects.all().filter(predavanja_fk_id__in = termin_1).count
+
+	context = {'koleg': koleg,'evidencija_1': evidencija_1,  'chartKolegiji': chartKolegiji, 'chartPrisutnost': chartPrisutnost}
+
 	return render(request, 'user.html', context)
 
 
@@ -112,17 +127,31 @@ def predmeti_view(request, pk):
 	user_id = request.user.id
 	koleg = kolegiji.objects.all().filter(osobeFK=user_id)
 
-	predmeti = termini.objects.get(naziv_kolegija_id=pk)
+	chartKolegiji = []
+	chartPrisutnost = []
 
-	predmeti1 = kolegiji.objects.all().order_by('naziv_kolegija')
+	for k in koleg:
+		chartKolegiji.append(k.naziv_kolegija)
+		termin_1 = termini.objects.all().filter(naziv_kolegija_id = k.id)
+		evidencija_1 = evidencija.objects.all().filter(predavanja_fk_id__in = termin_1).count()
+		chartPrisutnost.append(evidencija_1)
 
-	
-	broj_studenata_na_kolegiju = evidencija.objects.filter(predavanja_fk_id = predmeti).count()
+
+	#predmeti = termini.objects.get(naziv_kolegija_id=pk)
+
+	predmeti1 = koleg = kolegiji.objects.all().filter(
+		osobeFK=user_id).order_by('naziv_kolegija')
+
+	try:
+		predmeti = termini.objects.get(naziv_kolegija_id=pk)
+		broj_studenata_na_kolegiju = evidencija.objects.filter(
+			predavanja_fk_id=predmeti).count()
+	except:
+		broj_studenata_na_kolegiju = 0
 
 	context = {'koleg': koleg, 'predmeti1': predmeti1,
-               'broj_studenata_na_kolegiju': broj_studenata_na_kolegiju}
+            'broj_studenata_na_kolegiju': broj_studenata_na_kolegiju,'chartKolegiji' : chartKolegiji, 'chartPrisutnost' : chartPrisutnost }
 
-	
 	return render(request, 'predmeti.html', context)
 
 
@@ -135,23 +164,67 @@ def logoutUser(request):
 @login_required
 def nadzornaPlocaView(request):
 
-    user_id = request.user.id
-    koleg = kolegiji.objects.all().filter(
-    	osobeFK=user_id).order_by('naziv_kolegija')
+	user_id = request.user.id
+	koleg = kolegiji.objects.all().filter(
+		osobeFK=user_id).order_by('naziv_kolegija')
 
-    context = {'koleg': koleg}
-    return render(request, 'nadzorna_ploca.html', context)
+	chartKolegiji = []
+	chartPrisutnost = []
+
+	for k in koleg:
+		chartKolegiji.append(k.naziv_kolegija)
+		termin_1 = termini.objects.all().filter(naziv_kolegija_id = k.id)
+		evidencija_1 = evidencija.objects.all().filter(predavanja_fk_id__in = termin_1).count()
+		chartPrisutnost .append(evidencija_1)
+
+	kolegiji_1 = kolegiji.objects.all().filter(
+		osobeFK=user_id)
+	termin_1 = termini.objects.all().filter(naziv_kolegija_id__in =kolegiji_1)
+
+	evidencija_1 = evidencija.objects.all().filter(predavanja_fk_id__in = termin_1).count
+
+	context = {'koleg': koleg, 'chartKolegiji': chartKolegiji, 'chartPrisutnost':chartPrisutnost}
+	return render(request, 'nadzorna_ploca.html', context)
+
+
+@login_required
+def ispricaj_studenta(request):
+	user_id = request.user.id
+	koleg = kolegiji.objects.all().filter(
+		osobeFK=user_id).order_by('naziv_kolegija')
+
+	chartKolegiji = []
+	chartPrisutnost = []
+
+	for k in koleg:
+		chartKolegiji.append(k.naziv_kolegija)
+		termin_1 = termini.objects.all().filter(naziv_kolegija_id = k.id)
+		evidencija_1 = evidencija.objects.all().filter(predavanja_fk_id__in = termin_1).count()
+		chartPrisutnost.append(evidencija_1)
+
+	kolegiji_1 = kolegiji.objects.all().filter(
+		osobeFK=user_id)
+	termin_1 = termini.objects.all().filter(naziv_kolegija_id__in =kolegiji_1)
+
+	evidencija_1 = evidencija.objects.all().filter(predavanja_fk_id__in = termin_1).count
+
+	ispricaj_studenta_1 = 0
+
+	context = {'koleg': koleg,'evidencija_1':evidencija_1, 'chartKolegiji': chartKolegiji, 'chartPrisutnost':chartPrisutnost,'ispricaj_studenta_1':ispricaj_studenta_1}
+	return render(request,'ispricani_student.html' ,context)
+
+
 
 
 ## za CSV export
 def export(request):
-	response = HttpResponse(content_type = 'text/csv')
+	response = HttpResponse(content_type='text/csv')
 
 	response.write(u'\ufeff'.encode('utf8'))
 	writer = csv.writer(response)
 	writer.writerow(['Ime', 'Prezime', 'Broj indeksa', 'Email'])
 
-	for osoba in osobe.objects.all().values_list('ime','prezime', 'broj_indeksa','email'):
+	for osoba in osobe.objects.all().values_list('ime', 'prezime', 'broj_indeksa', 'email'):
 		writer.writerow(osoba)
 
 	response['Content-Disposition'] = 'attachment; filename="osobe.csv"'
@@ -159,16 +232,31 @@ def export(request):
 	return response
 
 
+# def export_raspored_csv(request):
+# 	response = HttpResponse(content_type='text/csv')
+# 	response['Content-Disposition'] = "attachment; filename = 'Predmet.csv'"
+# 	return response
 
 
 @api_view(['GET'])
 def apiOverview(request):
     api_urls = {
-        'List osobe': '/osobe-list/',
-        'Detail View osobe': "/osobe-detail/<str:pk>",
-        "Create osobe": "/osobe-create/",
-        "Update osobe": "/osobe-update/<str:pk>",
-        "Delete osobe": "/osobe-delete/<str:pk>",
+        "Popis osobe": "/osobe-list/",
+        "Detaljan pregled osobe": "/osobe-detail/<str:pk>",
+        "Stvori osobe": "/osobe-create/",
+        "Ažuriraj osobe": "/osobe-update/<str:pk>",
+
+		"Popis uloge": "/uloge-list/",
+        "Detaljan pregled uloge": "/uloge-detail/<str:pk>",
+        "Stvori uloge": "/uloge-create/",
+        "Ažuriraj uloge": "/uloge-update/<str:pk>",
+
+		"Popis kolegija": "/kolegij-list/",
+        "Detaljan pregled kolegija": "/kolegij-detail/<str:pk>",
+        "Stvori kolegij": "/kolegij-create/",
+        "Ažuriraj kolegij": "/kolegij-update/<str:pk>",
+		
+        
     }
 
     return Response(api_urls)
@@ -207,6 +295,219 @@ def osobeUpdate(request, pk):
         serializer.save()
 
     return Response(serializer.data)
+
+
+
+@api_view(['GET'])
+def ulogeList(request):
+	uloges = uloga.objects.all()
+	serializer = ulogeSerializer(uloges, many = True)
+
+	return Response(serializer.data)
+
+@api_view(['GET'])
+def ulogeDetail(request, pk):
+	uloges = uloga.objects.get(id = pk)
+	serializer = ulogeSerializer(uloges, many = False)
+
+	return Response(serializer.data)
+
+@api_view(['POST'])
+def ulogeCreate(request):
+	serializer = ulogeSerializer(data = request.data)
+
+	if serializer.is_valid():
+		serializer.save()
+
+	return Response(serializer.data)
+
+@api_view(['POST'])
+def ulogeUpdate(request, pk):
+	uloges = uloga.objects.get(id = pk)
+	serializer = ulogeSerializer(instance = uloges, data = request.data)
+
+	if serializer.is_valid():
+		serializer.save()
+
+	return Response(serializer.data)
+
+@api_view(['GET'])
+def kolegijiList(request):
+	kolegijis = kolegiji.objects.all()
+	serializer = kolegijiSerializer(kolegijis, many = True)
+
+	return Response(serializer.data)
+
+@api_view(['GET'])
+def kolegijiDetail(request,pk):
+	kolegijs = kolegiji.objects.get(id = pk)
+	serializer = kolegijiSerializer(kolegijs, many = False)
+
+	return Response(serializer.data)
+
+@api_view(['POST'])
+def kolegijiCreate(request):
+	serializer = kolegijiSerializer(data = request.data)
+
+	if serializer.is_valid():
+		serializers.save()
+
+	return Response(serializer.data)
+
+@api_view(['POST'])
+def kolegijiUpdate(request, pk):
+	kolegijis = kolegiji.objects.get(id = pk)
+	serializer = kolegijiSerializer(instance=kolegijis, data = request.data)
+
+	if serializer.is_valid():
+		serializer.save()
+
+	return Response(serializer.data)
+
+
+
+@api_view(['GET'])
+def studijList(request):
+	studijs = studij.objects.all()
+	serializer = studijSerializer(studijs, many = True)
+
+	return Response(serializer.data)
+
+@api_view(['GET'])
+def studijDetail(request,pk):
+	studijs = studij.objects.get(id = pk)
+	serializer = studijSerializer(studijs, many = False)
+
+	return Response(serializer.data)
+
+@api_view(['POST'])
+def studijCreate(request):
+	serializer = studijSerializer(data = request.data)
+
+	if serializer.is_valid():
+		serializers.save()
+
+	return Response(serializer.data)
+
+@api_view(['POST'])
+def studijUpdate(request, pk):
+	studijs = studij.objects.get(id = pk)
+	serializer = studijSerializer(instance=studijs, data = request.data)
+
+	if serializer.is_valid():
+		serializer.save()
+
+	return Response(serializer.data)
+
+
+
+
+@api_view(['GET'])
+def terminiList(request):
+	terminis = termini.objects.all()
+	serializer = terminiSerializer(terminis, many = True)
+
+	return Response(serializer.data)
+
+@api_view(['GET'])
+def terminiDetail(request,pk):
+	terminis = termini.objects.get(id = pk)
+	serializer = terminiSerializer(terminis, many = False)
+
+	return Response(serializer.data)
+
+@api_view(['POST'])
+def terminiCreate(request):
+	serializer = terminiSerializer(data = request.data)
+
+	if serializer.is_valid():
+		serializers.save()
+
+	return Response(serializer.data)
+
+@api_view(['POST'])
+def terminiUpdate(request, pk):
+	terminis = termini.objects.get(id = pk)
+	serializer = terminiSerializer(instance=terminis, data = request.data)
+
+	if serializer.is_valid():
+		serializer.save()
+
+	return Response(serializer.data)
+
+
+
+@api_view(['GET'])
+def ucionicaList(request):
+	ucionicas = ucionica.objects.all()
+	serializer = ucionicaSerializer(ucionicas, many = True)
+
+	return Response(serializer.data)
+
+@api_view(['GET'])
+def ucionicaDetail(request,pk):
+	ucionicas = ucionica.objects.get(id = pk)
+	serializer = ucionicaSerializer(ucionicas, many = False)
+
+	return Response(serializer.data)
+
+@api_view(['POST'])
+def ucionicaCreate(request):
+	serializer = ucionicaSerializer(data = request.data)
+
+	if serializer.is_valid():
+		serializers.save()
+
+	return Response(serializer.data)
+
+@api_view(['POST'])
+def ucionicaUpdate(request, pk):
+	ucionicas = ucionica.objects.get(id = pk)
+	serializer = ucionicaSerializer(instance=ucionicas, data = request.data)
+
+	if serializer.is_valid():
+		serializer.save()
+
+	return Response(serializer.data)
+
+
+
+@api_view(['GET'])
+def evidencijaList(request):
+	evidencijas = evidencija.objects.all()
+	serializer = evidencijaSerializer(evidencijas, many = True)
+
+	return Response(serializer.data)
+
+@api_view(['GET'])
+def evidencijaDetail(request,pk):
+	evidencijas = evidencija.objects.get(id = pk)
+	serializer = evidencijaSerializer(evidencijas, many = False)
+
+	return Response(serializer.data)
+
+@api_view(['POST'])
+def evidencijaCreate(request):
+	serializer = evidencijaSerializer(data = request.data)
+
+	if serializer.is_valid():
+		serializers.save()
+
+	return Response(serializer.data)
+
+@api_view(['POST'])
+def evidencijaUpdate(request, pk):
+	evidencijas = evidencija.objects.get(id = pk)
+	serializer = evidencijaSerializer(instance=evidencijas, data = request.data)
+
+	if serializer.is_valid():
+		serializer.save()
+
+	return Response(serializer.data)
+
+
+
+
 #                                 ###### API #######
 
 
