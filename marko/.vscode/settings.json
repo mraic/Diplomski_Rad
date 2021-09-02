@@ -1,3 +1,4 @@
 {
-    "python.pythonPath": "C:\\Users\\Korisnik\\envs\\elposl\\Scripts\\python.exe"
+    "python.pythonPath": "C:\\Users\\Korisnik\\Envs\\elposl\\Scripts\\python.exe",
+    "git.ignoreLimitWarning": true
 }

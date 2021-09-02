@@ -1,0 +1,39 @@
+version: '3.1'
+
+services:
+
+    db:
+        container_name: postgresql_db
+        image: postgres
+
+        restart: always
+        
+        environment: 
+            POSTGRES_USER: postgres
+            POSTGRES_PASSWORD: fsre
+            POSTGRES_DB: 
+                
+        ports: 
+            - "5432:5432"
+
+    pgadmin:
+        container_name: pgadmin4
+        image: dpage/pgadmin4
+        restart: always
+
+        volumes:
+            - ./data/pgadmin-data:/var/lib/pgadmin
+
+        environment: 
+            PGADMIN_DEFAULT_EMAIL: pgadmin4@pgadmin.org
+            PGADMIN_DEFAULT_PASSWORD: admin
+        ports: 
+            - "5050:80"
+        
+
+    
+    web:
+        build: .
+        command: python manage.py runserver 0.0.0.0:8000
+        ports: 
+            - 8000:8000

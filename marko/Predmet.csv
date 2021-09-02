@@ -1,13 +1,14 @@
-naziv_kolegija
-"b'Programiranje 2 (V, Online)'"
-"b'Racunalna grafika i dokumentiranje (P, Online)'"
-"b'Matematika 2 (V, D304, studenti: A-G)'"
-"b'Matematika 2 (V, D304, studenti: H-NJ)'"
-"b'Racunalna grafika i dokumentiranje (V, Online)'"
-"b'Matematika 2 (V, D304, studenti: O-\xc5\xbd)'"
-"b'Programiranje 2 (P, Online)'"
-"b'Elektronika (P, D304, studenti: O-\xc5\xbd)'"
-"b'Elektronika (P, Online, studenti: ostali)'"
-"b'Elektronika (P, D103, studenti: H-NJ)'"
-"b'Programiranje 2 (P, Online)'"
-"b'Elektronika (V, D304, studenti: O-\xc5\xbd)'"
+broj_ucionce_fk_id,naziv_kolegija_id,studij_fk_id
+2,4,1
+2,5,1
+2,5,1
+3,3,1
+3,3,1
+3,3,1
+2,4,1
+3,3,1
+2,2,1
+4,6,1
+2,6,1
+2,4,1
+2,4,1
